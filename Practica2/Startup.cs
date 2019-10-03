@@ -16,10 +16,11 @@ namespace Practica2
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddTransient<IAdder, BasicCalculator>();
+            services.AddTransient<IOperationFormatter, OperationFormatter>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app)
+        public void Configure(IApplicationBuilder app, IAdder adder)
         {
             // primer middleware de la aplicación:
 
@@ -62,7 +63,7 @@ namespace Practica2
                     int.TryParse(context.Request.Query["a"], out a);
                     int.TryParse(context.Request.Query["b"], out b);
 
-                    var adder = app.ApplicationServices.GetService<IAdder>();
+                    //var adder = app.ApplicationServices.GetService<IAdder>();
                     await context.Response.WriteAsync(adder.Add(a, b));
                 }
                 else
