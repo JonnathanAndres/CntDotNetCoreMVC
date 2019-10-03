@@ -15,7 +15,7 @@ namespace Practica2
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            
+            services.AddTransient<IAdder, BasicCalculator>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -54,9 +54,21 @@ namespace Practica2
             });
 
             // Request Info middleware
-            app.Run(async ctx =>
+            app.Run(async context =>
             {
-                await ctx.Response.WriteAsync($"Path requested: {ctx.Request.Path}");
+                if (context.Request.Path == "/add")
+                {
+                    int a = 0, b = 0;
+                    int.TryParse(context.Request.Query["a"], out a);
+                    int.TryParse(context.Request.Query["b"], out b);
+
+                    var adder = app.ApplicationServices.GetService<IAdder>();
+                    await context.Response.WriteAsync(adder.Add(a, b));
+                }
+                else
+                {
+                    await context.Response.WriteAsync($"Try again!");
+                }
             });
         }
     }
