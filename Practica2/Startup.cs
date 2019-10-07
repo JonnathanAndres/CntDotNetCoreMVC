@@ -23,47 +23,27 @@ namespace Practica2
         public void Configure(IApplicationBuilder app, IAdder adder, IHostingEnvironment environment)
         {
             // primer middleware de la aplicación:
-            if(environment.IsDevelopment())
+            app.UseWelcomePage("/test");
+
+            if (environment.IsDevelopment())
+            {
                 app.UseDeveloperExceptionPage();
-
-            // Hello world middleware
-            app.Use(async (ctx, next) =>
+            }
+            else
             {
-                if (ctx.Request.Path == "/hello-world")
-                {
-                    // Procesa la petición y no permite la ejecución de middlewares posteriores
-                    await ctx.Response.WriteAsync("Hello, world!");
-                }
-                else
-                {
-                    // Pasa el control al siguiente middleware
-                    await next();
-                }
-            });
+                app.UseExceptionHandler("/friendlyError500.html");
+            }
 
-            //segundo middleware:
-            app.Use(async (ctx, next) =>
-            {
-                if (ctx.Request.Path.ToString().StartsWith("/hello"))
-                {
-                    // Procesa la petición y no permite la ejecución de otros middlewares
-                    await ctx.Response.WriteAsync("Hello, user!");
-                }
-                else
-                {
-                    // Pasa la petición al siguiente middleware
-                    await next();
-                }
-            });
+            app.UseStaticFiles(); // Permite retornar archivos estáticos
 
-            // Request Info middleware
             app.Run(async (context) =>
             {
                 if (context.Request.Path == "/boom")
-                    throw new InvalidOperationException("Invalid operation");
+                    throw new InvalidOperationException("Boom!!");
 
                 await context.Response.WriteAsync("Hello, world!");
             });
+
         }
     }
 }
