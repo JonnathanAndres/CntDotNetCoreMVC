@@ -20,9 +20,11 @@ namespace Practica2
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IAdder adder)
+        public void Configure(IApplicationBuilder app, IAdder adder, IHostingEnvironment environment)
         {
             // primer middleware de la aplicación:
+            if(environment.IsDevelopment())
+                app.UseDeveloperExceptionPage();
 
             // Hello world middleware
             app.Use(async (ctx, next) =>
@@ -55,21 +57,12 @@ namespace Practica2
             });
 
             // Request Info middleware
-            app.Run(async context =>
+            app.Run(async (context) =>
             {
-                if (context.Request.Path == "/add")
-                {
-                    int a = 0, b = 0;
-                    int.TryParse(context.Request.Query["a"], out a);
-                    int.TryParse(context.Request.Query["b"], out b);
+                if (context.Request.Path == "/boom")
+                    throw new InvalidOperationException("Invalid operation");
 
-                    //var adder = app.ApplicationServices.GetService<IAdder>();
-                    await context.Response.WriteAsync(adder.Add(a, b));
-                }
-                else
-                {
-                    await context.Response.WriteAsync($"Try again!");
-                }
+                await context.Response.WriteAsync("Hello, world!");
             });
         }
     }
